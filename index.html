@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Monitoring</title>
+<script src="https://cdn.jsdelivr.net/npm/justgage@1.4.0/dist/justgage.min.js"></script>
+
+<style>
+/* Style for cards */
+body {
+  background-image: url(https://imgs.search.brave.com/BUdeE_22P4ZPMlOQ20gy-UsHLJNoFPKZEDnMeglXwuM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3ct/Y2RuLmV1bWV0c2F0/LmludC9maWxlcy9z/dHlsZXMvMTZfOV9s/YXJnZS9zMy8yMDIy/LTAzL3dlYXRoZXIt/bHpvbmUuanBnP2g9/ZDFjYjUyNWQmaXRv/az1ONDdGMU1ZRA);
+  background-repeat: no-repeat;
+  background-size: cover;
+  text-align: center;
+}
+
+h1 {
+  background-color: whitesmoke;
+  height: 50px;
+  padding-top: 15px;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+  width: calc(25% - 60px);
+  height: 200px;
+  margin: 10px;
+  background-color: #f1f1f1;
+  padding: 20px;
+  text-align: center;
+}
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive layout */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+/* Adjust card width based on screen width */
+@media screen and (max-width: 600px) {
+  .card {
+    width: calc(80% - 20px);
+    height: 200px;
+  }
+}
+
+@media screen and (min-width: 601px) and (max-width: 900px) {
+  .card {
+    width: calc(50% - 50px);
+    height: 200px;
+  }
+}
+
+p {
+  font-size: 35px;
+  font-weight: bolder;
+  padding: auto;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Weather Monitoring Dashboard</h1>
+
+<div class="row">
+  <div class="card">
+    <h2>Device Status</h2>
+    <p id="device_status"></p>
+  </div>
+  <div class="card">
+    <h2>Temperature</h2>
+    <p id="temperature_data"></p>
+  </div>
+  <div class="card">
+    <h2>Humidity</h2>
+    <p id="humidity_data"></p>
+  </div>
+  <div class="card">
+    <h2>Rain Status</h2>
+    <p id="rain_data"></p>
+  </div>
+</div>
+
+<script>
+// Function to fetch data from the server
+function fetchData() {
+ // Fetch data from the first endpoint
+  fetch('https://blynk.cloud/external/api/isHardwareConnected?token=9F09hou-1cCz8hvuuyRPKYY_7od9wtny')
+    .then(response => response.json())
+    .then(data => {
+      // Check if data is true or false and update device status accordingly
+      var deviceStatus = data ? "Online" : "Offline";
+      // Update the content of the 'device_status' div with the fetched data
+      document.getElementById('device_status').innerText = deviceStatus;
+    })
+    .catch(error => {
+      console.error('Error fetching data from endpoint 1:', error);
+      // If there's an error fetching data, display "Offline"
+      document.getElementById('device_status').innerText = "Offline";
+    });
+
+
+  // Fetch data from the second endpoint
+  fetch('https://blynk.cloud/external/api/get?token=9F09hou-1cCz8hvuuyRPKYY_7od9wtny&dataStreamId=1')
+    .then(response => response.json())
+    .then(data => {
+      // Update the content of the 'data2' div with the fetched data
+      document.getElementById('temperature_data').innerHTML = JSON.stringify(data) + "  &#8451;";
+    })
+    .catch(error => {
+      console.error('Error fetching data from endpoint 2:', error);
+    });
+
+  // Fetch data from the third endpoint
+  fetch('https://blynk.cloud/external/api/get?token=9F09hou-1cCz8hvuuyRPKYY_7od9wtny&dataStreamId=2')
+    .then(response => response.json())
+    .then(data => {
+      // Update the content of the 'data3' div with the fetched data
+      document.getElementById('humidity_data').innerText = JSON.stringify(data) + "  %";
+    })
+    .catch(error => {
+      console.error('Error fetching data from endpoint 3:', error);
+    });
+
+    // Fetch data from the fourth endpoint
+    fetch('https://blynk.cloud/external/api/get?token=9F09hou-1cCz8hvuuyRPKYY_7od9wtny&dataStreamId=3')
+      .then(response => response.json())
+      .then(data => {
+        // Check the value of data and update rain_data accordingly
+        var rainStatus = (data === 1) ? "Raining" : "No rain";
+        // Update the content of the 'rain_data' div with the rain status
+        document.getElementById('rain_data').innerText = rainStatus;
+      })
+      .catch(error => {
+        console.error('Error fetching data from endpoint 3:', error);
+      });
+}
+
+// Call the fetchData function every 500 milliseconds
+setInterval(fetchData, 500);
+</script>
+
+</body>
+</html>
